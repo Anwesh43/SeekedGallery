@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.*;
 import android.hardware.display.DisplayManager;
 import android.view.*;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class SeekedGallery {
     private Activity activity;
     private List<Bitmap> bitmaps = new ArrayList<>();
     private SeekedView seekedView;
+    private ImageView seekedImageView;
     private GalleryView galleryView;
     private int currentIndex = 0;
     private long prevTime = System.currentTimeMillis();
@@ -46,6 +48,7 @@ public class SeekedGallery {
         this.interval = interval;
     }
     public void addViewToParent() {
+        seekedImageView = new ImageView(activity);
         galleryView = new GalleryView(activity);
         duration = bitmaps.size()*interval;
         seekedView = new SeekedView(activity);
@@ -53,6 +56,10 @@ public class SeekedGallery {
         galleryView.setY(h/12);
         seekedView.setX(0);
         seekedView.setY(7*h/10);
+        seekedImageView.setX(0);
+        seekedImageView.setY(3*h/5);
+        seekedImageView.setVisibility(View.INVISIBLE);
+        activity.addContentView(seekedImageView,new ViewGroup.LayoutParams(h/7,h/7));
         activity.addContentView(seekedView,new ViewGroup.LayoutParams(w,(int)seekh));
         activity.addContentView(galleryView,new ViewGroup.LayoutParams(2*w/3,h/2));
     }
@@ -122,18 +129,26 @@ public class SeekedGallery {
                 case MotionEvent.ACTION_MOVE:
                     if(isDown) {
                         seekx = event.getX();
-                        updateGallery();
+                        updateSeekedImageView();
                         animated = true;
                         postInvalidate();
                     }
                     break;
                 case MotionEvent.ACTION_UP:
                     if(isDown){
+                        updateGallery();
+                        seekedImageView.setVisibility(INVISIBLE);
                         isDown = false;
                     }
                     break;
             }
             return true;
+        }
+        private void updateSeekedImageView() {
+            int tempIndex = (int)((seekx*bitmaps.size())/w);
+            seekedImageView.setX(seekx-seekedImageView.getMeasuredWidth()/2);
+            seekedImageView.setVisibility(VISIBLE);
+            seekedImageView.setImageBitmap(bitmaps.get(tempIndex));
         }
         private void updateGallery() {
             currentIndex = (int)((seekx*bitmaps.size())/w);
