@@ -124,6 +124,7 @@ public class SeekedGallery {
                         seekx = event.getX();
                         updateGallery();
                         animated = true;
+                        postInvalidate();
                     }
                     break;
                 case MotionEvent.ACTION_UP:
